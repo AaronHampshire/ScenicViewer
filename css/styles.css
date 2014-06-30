@@ -1,0 +1,42 @@
+body {
+  background-color: #F8F8F8;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.2em;
+}
+
+h1, p {
+  color: #333;
+}
+.ion-ios7-folder{
+  padding:0;
+  font-size: 26px; 
+  color: #222;
+}
+#header{
+  margin:50px;
+  padding:0px;
+  height:100px;
+  line-height:50px;
+}
+#choose_file{
+  margin-top:100px;
+  padding:0px;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#container_id {
+  height: 400px;
+  position: relative;
+  border: 1px solid #ccc;
+  background-color: #fff;
+}
+
+#text_id {
+  font-size: 24pt;
+  text-align: center;
+  margin-top: 140px;
+}
