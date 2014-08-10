@@ -1,6 +1,6 @@
 Scenic Viewer
 ============
-Scenic viewer is a chrome app that uses pdf.js for a more full-featured PDF-viewing experience, including table of contents, thumbnail preview, and file syncing across devices (Coming soon)
+Scenic viewer is a chrome app that uses pdf.js for a more full-featured PDF-viewing experience, including table of contents, thumbnail preview, and file syncing across devices (Coming soon).
 
 
 **Install Instructions**
@@ -13,9 +13,11 @@ Scenic viewer is a chrome app that uses pdf.js for a more full-featured PDF-view
  6. Navigate to your unzipped Scenic Viewer folder and select it.
 
 **License**
+
 Scenic Viewer is licensed under the MIT license. You may use, copy, modify, merge, publish, and distribute this project as you see fit. See the [MIT license][2] for more details.
 
 **Libraries**
+
 Scenic Viewer is indebted to the following libraries:
 
  1. [pdf.js][3] forms the base PDF-viewing capability and is used under the Apache license.
