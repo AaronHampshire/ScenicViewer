@@ -6,11 +6,11 @@
  */
 chrome.app.runtime.onLaunched.addListener(function() {
   chrome.app.window.create(
-    "index.html",
+    "pdf/web/scenicViewer.html",
     {
       id: "mainWindow",
       bounds: {width: 640, height: 480},
-      minWidth: 50,
+      minWidth: 701,
       minHeight: 20
     }
   );

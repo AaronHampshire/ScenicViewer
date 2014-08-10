@@ -1,27 +1,16 @@
 {
-  "name": "scenicviewer",
-  "version": "1",
-  
   "manifest_version": 2,
-  
-  "icons": {"128": "assets/icon_128.png"},
-  "minimum_chrome_version": "23",
- 
-  "app": {
-    "background": {
-      "scripts": ["background.js"]
-    }
-  },
+  "name": "Scenic Viewer",
+  "version": "1",
+  "description": "Uses HTML5 to display PDF files directly in the browser.",
+   "icons": {"128": "assets/icon_128.png"},
   "permissions": [
     {"fileSystem": ["write", "retainEntries", "directory"]},
     "storage"
   ],
-  "file_handlers": {
-    "application/pdf": {
-      "types": [
-          "pdf"
-      ],
-      "title": "scenicviewer"
-    }
+  "app":{
+  "background": {
+    "scripts": ["background.js"]
+  }
   }
 }

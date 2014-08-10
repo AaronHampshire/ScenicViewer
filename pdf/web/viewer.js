@@ -24,7 +24,7 @@
 
 'use strict';
 
-var DEFAULT_URL = 'compressed.tracemonkey-pldi-09.pdf';
+var DEFAULT_URL = '';
 var DEFAULT_SCALE = 'auto';
 var DEFAULT_SCALE_DELTA = 1.1;
 var UNKNOWN_SCALE = 0;
@@ -219,6 +219,7 @@ function getPDFFileNameFromURL(url) {
     }
   }
   return suggestedFilename || 'document.pdf';
+  
 }
 
 var ProgressBar = (function ProgressBarClosure() {
@@ -473,13 +474,27 @@ Preferences._writeToStorage = function (prefObj) {
     resolve();
   });
 };
-
+/*
 Preferences._readFromStorage = function (prefObj) {
   return new Promise(function (resolve) {
     var readPrefs = JSON.parse(localStorage.getItem('pdfjs.preferences'));
     resolve(readPrefs);
   });
 };
+*/
+
+Preferences._readFromStorage = function (prefObj) {
+  return new Promise(function (resolve) {
+    JSON.parse(chrome.storage.local.get('pdfjs.preferences', function(result){
+      resolve(result);
+
+    }
+    )
+    
+  );
+  });
+};
+
 
 
 (function mozPrintCallbackPolyfillClosure() {
@@ -562,39 +577,7 @@ Preferences._readFromStorage = function (prefObj) {
 
   var hasAttachEvent = !!document.attachEvent;
 
-  window.addEventListener('keydown', function(event) {
-    // Intercept Cmd/Ctrl + P in all browsers.
-    // Also intercept Cmd/Ctrl + Shift + P in Chrome and Opera
-    if (event.keyCode === 80/*P*/ && (event.ctrlKey || event.metaKey) &&
-        !event.altKey && (!event.shiftKey || window.chrome || window.opera)) {
-      window.print();
-      if (hasAttachEvent) {
-        // Only attachEvent can cancel Ctrl + P dialog in IE <=10
-        // attachEvent is gone in IE11, so the dialog will re-appear in IE11.
-        return;
-      }
-      event.preventDefault();
-      if (event.stopImmediatePropagation) {
-        event.stopImmediatePropagation();
-      } else {
-        event.stopPropagation();
-      }
-      return;
-    }
-    if (event.keyCode === 27 && canvases) { // Esc
-      abort();
-    }
-  }, true);
-  if (hasAttachEvent) {
-    document.attachEvent('onkeydown', function(event) {
-      event = event || window.event;
-      if (event.keyCode === 80/*P*/ && event.ctrlKey) {
-        event.keyCode = 0;
-        return false;
-      }
-    });
-  }
-
+  
   if ('onbeforeprint' in window) {
     // Do not propagate before/afterprint events when they are not triggered
     // from within this polyfill. (FF/IE).
@@ -756,8 +739,10 @@ var ViewHistory = (function ViewHistoryClosure() {
     _readFromStorage: function ViewHistory_readFromStorage() {
       return new Promise(function (resolve) {
 
-
-        resolve(localStorage.getItem('database'));
+        chrome.storage.local.get('database', function(result){
+          resolve(result);
+        });
+      
       });
     },
 
@@ -829,6 +814,10 @@ var PDFFindBar = {
     var self = this;
     this.toggleButton.addEventListener('click', function() {
       self.toggle();
+      var div = document.getElementById('zoombar');
+      if (div.style.display === 'block') {
+        div.style.display = 'none';
+      }
     });
 
     this.findField.addEventListener('input', function() {
@@ -851,6 +840,12 @@ var PDFFindBar = {
     this.findPreviousButton.addEventListener('click',
       function() { self.dispatchEvent('again', true); }
     );
+    
+    var closeButton = document.getElementById('close');
+    
+    closeButton.addEventListener('click', function() {
+      PDFFindBar.toggle();
+    });
 
     this.findNextButton.addEventListener('click', function() {
       self.dispatchEvent('again', false);
@@ -1780,7 +1775,7 @@ var SecondaryToolbar = {
       this.open();
     }
   }
-};
+}
 
 
 var DELAY_BEFORE_HIDING_CONTROLS = 3000; // in ms
@@ -2532,7 +2527,7 @@ var DocumentProperties = {
     }
     // Get the file name.
     this.fileName = getPDFFileNameFromURL(PDFView.url);
-
+    console.log("hi");
     // Get the file size.
     PDFView.pdfDocument.getDownloadInfo().then(function(data) {
       this.setFileSize(data.length);
@@ -2729,7 +2724,7 @@ var PDFView = {
 
     PresentationMode.initialize({
       container: container,
-      secondaryToolbar: SecondaryToolbar,
+      //secondaryToolbar: SecondaryToolbar,
       firstPage: document.getElementById('contextFirstPage'),
       lastPage: document.getElementById('contextLastPage'),
       pageRotateCw: document.getElementById('contextPageRotateCw'),
@@ -2758,9 +2753,11 @@ var PDFView = {
       creatorField: document.getElementById('creatorField'),
       producerField: document.getElementById('producerField'),
       versionField: document.getElementById('versionField'),
-      pageCountField: document.getElementById('pageCountField')
+      pageCountField: document.getElementById('pageCountField'),
+      closeFind: document.getElementById('close')
     });
-
+    
+    
     container.addEventListener('scroll', function() {
       self.lastScroll = Date.now();
     }, false);
@@ -3077,6 +3074,8 @@ var PDFView = {
   // TODO(mack): This function signature should really be pdfViewOpen(url, args)
   open: function pdfViewOpen(url, scale, password,
                              pdfDataRangeTransport, args) {
+      
+
     if (this.pdfDocument) {
       // Reload the preferences if a document was previously opened.
       Preferences.reload();
@@ -3115,6 +3114,9 @@ var PDFView = {
       function getDocumentCallback(pdfDocument) {
         self.load(pdfDocument, scale);
         self.loading = false;
+        document.getElementById('newPageNumber').innerHTML = "1";
+        document.getElementById('pageNumberDiv').className = "";
+        document.getElementById('zoomWrap').className = "";
       },
       function getDocumentError(message, exception) {
         var loadingErrorMessage = mozL10n.get('loading_error', null,
@@ -3139,7 +3141,10 @@ var PDFView = {
         self.error(loadingErrorMessage, moreInfo);
         self.loading = false;
       }
+          
+
     );
+    
   },
 
   download: function pdfViewDownload() {
@@ -3246,6 +3251,7 @@ var PDFView = {
         return pdfOpenParams;
       }
     }
+    
     return '';
   },
 
@@ -3356,10 +3362,10 @@ var PDFView = {
     PDFFindController.reset();
 
     this.pdfDocument = pdfDocument;
-
+   
     DocumentProperties.resolveDataAvailable();
 
-    var downloadedPromise = pdfDocument.getDownloadInfo().then(function() {
+var downloadedPromise = pdfDocument.getDownloadInfo().then(function() {
       self.downloadComplete = true;
       PDFView.loadingBar.hide();
       var outerContainer = document.getElementById('outerContainer');
@@ -3370,7 +3376,7 @@ var PDFView = {
 
     var id = pdfDocument.fingerprint;
     document.getElementById('numPages').textContent =
-      mozL10n.get('page_of', {pageCount: pagesCount}, 'of {{pageCount}}');
+      mozL10n.get('page_of', {pageCount: pagesCount}, '{{pageCount}}');
     document.getElementById('pageNumber').max = pagesCount;
 
     PDFView.documentFingerprint = id;
@@ -3483,7 +3489,7 @@ var PDFView = {
         self.container.focus();
       }
     }, function rejected(reason) {
-      console.error(reason);
+      //console.error(reason);
 
       firstPagePromise.then(function () {
         self.setInitialView(null, scale);
@@ -3559,7 +3565,9 @@ var PDFView = {
                   ' / ' + (info.Creator || '-').trim() + ']' +
                   ' (PDF.js: ' + (PDFJS.version || '-') +
                   (!PDFJS.disableWebGL ? ' [WebGL]' : '') + ')');
-
+      var printPath = document.querySelector('#fileName');
+      printPath.innerHTML = document.title;
+      console.log(document.title + " line 3568");
       var pdfTitle;
       if (metadata && metadata.has('dc:title')) {
         pdfTitle = metadata.get('dc:title');
@@ -3572,7 +3580,7 @@ var PDFView = {
       if (pdfTitle) {
         self.setTitle(pdfTitle + ' - ' + document.title);
       }
-
+      
       if (info.IsAcroFormPresent) {
         console.warn('Warning: AcroForm/XFA is not supported');
         PDFView.fallback(PDFJS.UNSUPPORTED_FEATURES.forms);
@@ -4323,6 +4331,10 @@ var PageView = function pageView(container, id, scale,
           case 'Find':
             if (!PDFView.supportsIntegratedFind) {
               PDFFindBar.toggle();
+               var div = document.getElementById('zoombar');
+              if (div.style.display === 'block') {
+                div.style.display = 'none';
+              }
             }
             break;
 
@@ -5395,6 +5407,7 @@ function webViewerLoad(evt) {
 }
 
 function webViewerInitialized() {
+  var myPopup = null;
   var params = PDFView.parseQueryString(document.location.search.substring(1));
   var file = 'file' in params ? params.file : DEFAULT_URL;
 
@@ -5548,6 +5561,52 @@ function webViewerInitialized() {
     function() {
       PDFView.page++;
     });
+    
+  document.getElementById('zoom').addEventListener('click', function(){
+    var div = document.getElementById('zoombar');
+      if (div.style.display === 'block') {
+        div.style.display = 'none';
+      }
+      else {
+        div.style.display = 'block';
+        PDFFindBar.close(); 
+      }
+  });
+  
+  
+   
+  /************ Zoom Listeners ***********/
+  document.getElementById('pageWidth').addEventListener('click', function(){
+    PDFView.setScale('page-width', true, true);
+  });
+  
+  document.getElementById('pageFit').addEventListener('click', function(){
+    PDFView.setScale('page-fit', true, true);
+  });
+  
+  document.getElementById('50percent').addEventListener('click', function(){
+    PDFView.setScale(0.5, true, true);
+  });
+  
+  document.getElementById('75percent').addEventListener('click', function(){
+    PDFView.setScale(0.75, true, true);
+  });
+  
+  document.getElementById('100percent').addEventListener('click', function(){
+    PDFView.setScale(1, true, true);
+  });
+  
+  document.getElementById('150percent').addEventListener('click', function(){
+    PDFView.setScale(1.5, true, true);
+  });
+  
+  document.getElementById('200percent').addEventListener('click', function(){
+    PDFView.setScale(2, true, true);
+  })
+  
+  document.getElementById('400percent').addEventListener('click', function(){
+    PDFView.setScale(4, true, true);
+  });
 
   document.getElementById('zoomIn').addEventListener('click',
     function() {
@@ -5559,10 +5618,44 @@ function webViewerInitialized() {
       PDFView.zoomOut();
     });
 
+  document.getElementById('fastPage').addEventListener('click',
+      function() {
+      var div = document.getElementById('goToPage');
+      if (div.style.display === 'block') {
+        div.style.display = 'none';
+      }
+      else {
+        var inputDiv = document.getElementById('goToPageInput');
+        inputDiv.value = PDFView.page;
+        div.style.display = 'block';
+        inputDiv.select();
+      }
+  }); 
+  
+  document.getElementById('goToPageInput').onkeydown = function (e) {
+    var code = e.keyCode ? e.keyCode : e.which;
+    if (code === 13) { 
+        var pageNumberValue = document.getElementById('goToPageInput').value;
+        if (pageNumberValue > 0){
+          PDFView.page = pageNumberValue;
+          document.getElementById('goToPage').style.display = 'none';
+        }
+    } 
+  };
+
+
   document.getElementById('pageNumber').addEventListener('click',
     function() {
       this.select();
     });
+    
+  document.getElementById('goToOk').addEventListener('click', function(){
+    var pageNumberValue = document.getElementById('goToPageInput').value;
+    if (pageNumberValue > 0){
+      PDFView.page = pageNumberValue;
+      document.getElementById('goToPage').style.display = 'none';
+    }
+  });
 
   document.getElementById('pageNumber').addEventListener('change',
     function() {
@@ -5797,7 +5890,7 @@ window.addEventListener('scalechange', function scalechange(evt) {
 window.addEventListener('pagechange', function pagechange(evt) {
   var page = evt.pageNumber;
   if (PDFView.previousPageNumber !== page) {
-    document.getElementById('pageNumber').value = page;
+    document.getElementById('newPageNumber').innerHTML = page;
     var selected = document.querySelector('.thumbnail.selected');
     if (selected) {
       selected.classList.remove('selected');
@@ -5868,15 +5961,13 @@ window.addEventListener('keydown', function keydown(evt) {
     switch (evt.keyCode) {
       case 70: // f
         if (!PDFView.supportsIntegratedFind) {
-          PDFFindBar.open();
+          PDFFindBar.toggleButton.click();
           handled = true;
         }
         break;
-      case 71: // g
-        if (!PDFView.supportsIntegratedFind) {
-          PDFFindBar.dispatchEvent('again', cmd === 5 || cmd === 12);
-          handled = true;
-        }
+      case 71: // g //gkeycode
+        document.getElementById('fastPage').click();
+        handled = true;
         break;
       case 61: // FF/Mac '='
       case 107: // FF '+' and '='
@@ -5900,6 +5991,14 @@ window.addEventListener('keydown', function keydown(evt) {
         });
         handled = false;
         break;
+      case 79: //O
+        document.getElementById('openFile').click();
+        handled = true;
+        break;
+      case 90:
+        document.getElementById('zoom').click();
+        handled = true;
+        break;
     }
   }
 
@@ -5907,7 +6006,7 @@ window.addEventListener('keydown', function keydown(evt) {
   if (cmd === 1 || cmd === 8) {
     switch (evt.keyCode) {
       case 83: // s
-        PDFView.download();
+        document.getElementById('sidebarToggle').click();
         handled = true;
         break;
     }
