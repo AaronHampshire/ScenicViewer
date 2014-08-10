@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
   "name": "Scenic Viewer",
-  "version": "1",
-  "description": "Uses HTML5 to display PDF files directly in the browser.",
+  "version": "1.0",
+  "description": "A feature-filled pdf viewer.",
    "icons": {"128": "assets/icon_128.png"},
   "permissions": [
     {"fileSystem": ["write", "retainEntries", "directory"]},
