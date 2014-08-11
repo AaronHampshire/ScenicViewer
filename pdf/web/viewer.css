@@ -231,6 +231,11 @@ html[dir='rtl'] #outerContainer.sidebarOpen > #mainContainer {
   right: 200px;
 }
 
+#mainContainer.libraryOpen{
+  transition-property: right;
+  right:200px;
+}
+
 #sidebarContent {
   top: 50px;
   bottom: 0;
@@ -1783,4 +1788,28 @@ i.ion-search:before{
 
 #goToOk > i{
   margin-top: -7px;
+}
+
+
+#libraryContainer{
+  position: absolute;
+  top: 50px;
+  bottom: 0;
+  right:0px;
+  z-index:90000;
+  background-color: #333;
+  width: 160px;
+  height: 100%;
+  transition-duration: 200ms;
+  transition-timing-function: ease;
+  padding:20px;
+  color:#888;
+}
+
+#libraryContainer.right {
+  transform:translateX(200px);
+}
+
+#libraryContainer.left{
+  transform:translateX(0px);
 }

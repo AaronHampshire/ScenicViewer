@@ -3179,6 +3179,11 @@ var PDFView = {
       downloadByUrl // Error occurred try downloading with just the url.
     ).then(null, downloadByUrl);
   },
+  
+ getBlob : function getPdfBlob(){
+   var blob = PDFJS.createBlob(this.pdfDocument.getData(), 'application/pdf');
+   return blob;
+ },
 
   fallback: function pdfViewFallback(featureId) {
     return;
@@ -5536,6 +5541,17 @@ function webViewerInitialized() {
       PDFView.sidebarOpen = outerContainer.classList.contains('sidebarOpen');
       PDFView.renderHighestPriority();
     });
+    
+  document.getElementById('library').addEventListener('click',
+    function(){
+      var div = document.getElementById('libraryContainer');
+      div.classList.toggle('right');
+      div.classList.toggle('left');  
+      document.getElementById('mainContainer').classList.toggle('libraryOpen');
+      PDFView.renderHighestPriority();
+    });
+    
+  
 
   document.getElementById('viewThumbnail').addEventListener('click',
     function() {

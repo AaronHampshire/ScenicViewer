@@ -6,7 +6,8 @@
    "icons": {"128": "assets/icon_128.png"},
   "permissions": [
     {"fileSystem": ["write", "retainEntries", "directory"]},
-    "storage"
+    "storage",
+    "syncFileSystem"
   ],
   "app":{
   "background": {

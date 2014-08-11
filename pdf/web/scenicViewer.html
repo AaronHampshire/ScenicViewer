@@ -92,6 +92,13 @@ http://sourceforge.net/adobe/cmap/wiki/License/
 <!--#include viewer-snippet-minified.html-->
 <!--#endif-->
 
+
+<!--================= Library Sync =================-->
+<script src="../../sync/utils.js"></script>
+<script src="../../sync/library.js"></script> 
+<script src="../../sync/main.js"></script>
+
+
   </head>
 
   <body tabindex="1">
@@ -187,7 +194,7 @@ http://sourceforge.net/adobe/cmap/wiki/License/
                 
               </div>  <!-- findbar -->
               </div>
-              <button id="secondaryToolbarToggle" class="toolbarButton" title="Tools" tabindex="18" data-l10n-id="tools">
+              <button id="library" class="toolbarButton" title="Library">
                 <i class="fa fa-navicon fa-lg"></i>
               </button> 
                 
@@ -305,7 +312,12 @@ http://sourceforge.net/adobe/cmap/wiki/License/
           </div>
         </div>
 
-
+      <!--============================Library Container ============================================-->
+      <div id="libraryContainer" class="right">
+        Library
+        <div id="addThisPdf">ADD PDF</div>
+        <ul id="filelist"></ul>
+      </div>
 
       <!------------------------------Sidebar Container ---------------------------------------------->
       <div id="sidebarContainer">
