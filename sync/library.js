@@ -26,7 +26,6 @@ function Library(filesystem, container) {
           console.log('Write failed: ' + e.toString());
         };
         console.log('What?');
-        var blob = new Blob(['Lorem Ipsum'], {type: 'text/plain'});
         fileWriter.write(blob);
         console.log('Who?');
         }, function(e){});
@@ -42,31 +41,7 @@ function Library(filesystem, container) {
   });
   
   
-function onInitFs(fs) {
 
-  fs.root.getFile('log.txt', {create: true}, function(fileEntry) {
-
-    // Create a FileWriter object for our FileEntry (log.txt).
-    fileEntry.createWriter(function(fileWriter) {
-
-      fileWriter.onwriteend = function(e) {
-        console.log('Write completed.');
-      };
-
-      fileWriter.onerror = function(e) {
-        console.log('Write failed: ' + e.toString());
-      };
-
-      // Create a new Blob and write it to log.txt.
-      var blob = new Blob(['Lorem Ipsum'], {type: 'text/plain'});
-
-      fileWriter.write(blob);
-
-    }, errorHandler);
-
-  }, errorHandler);
-
-}
 
   
   
